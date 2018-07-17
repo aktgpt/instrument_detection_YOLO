@@ -122,8 +122,8 @@ def main(argv):
 
         for obj in image['object']:
             relative_w = (float(obj['xmax']) - float(obj['xmin']))/cell_w
-            relatice_h = (float(obj["ymax"]) - float(obj['ymin']))/cell_h
-            annotation_dims.append(tuple(map(float, (relative_w,relatice_h))))
+            relative_h = (float(obj["ymax"]) - float(obj['ymin']))/cell_h
+            annotation_dims.append(tuple(map(float, (relative_w,relative_h))))
 
     annotation_dims = np.array(annotation_dims)
     centroids = run_kmeans(annotation_dims, num_anchors)
@@ -133,5 +133,5 @@ def main(argv):
     print_anchors(centroids)
 
 if __name__ == '__main__':
-    args = argparser.parse_args()
+    args = argparser.parse_args(['-c', 'config.json'])
     main(args)

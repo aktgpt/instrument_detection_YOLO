@@ -1,35 +1,35 @@
 {
     "model" : {
         "backend":              "Full Yolo",
-        "input_size":           416,
-        "anchors":              [0.57273, 0.677385, 1.87446, 2.06253, 3.33843, 5.47434, 7.88282, 3.52778, 9.77052, 9.16828],
-        "max_box_per_image":    10,        
-        "labels":               ["kangaroo"]
+        "input_size":           512,
+        "anchors":              [1.80,2.07, 2.68,2.26, 3.12,4.31, 4.08,3.59, 6.40,5.23],
+        "max_box_per_image":    10,
+        "labels":               ["surgicaltool"]
     },
 
     "train": {
-        "train_image_folder":   "/home/andy/data/kangaroo/images/",
-        "train_annot_folder":   "/home/andy/data/kangaroo/annots/",     
-          
-        "train_times":          8,
-        "pretrained_weights":   "full_yolo_kangaroo3.h5",
-        "batch_size":           16,
+        "train_image_folder":   "/home/ankit/Documents/Ankit-BackUp/Develop/LiverVision/Instrument Detection/dataset/train_image_folder/",
+        "train_annot_folder":   "/home/ankit/Documents/Ankit-BackUp/Develop/LiverVision/Instrument Detection/dataset/train_annot_folder_new/",
+
+        "train_times":          10,
+        "pretrained_weights":   "",
+        "batch_size":           2,
         "learning_rate":        1e-4,
-        "nb_epochs":            1,
+        "nb_epochs":            50,
         "warmup_epochs":        3,
 
-        "object_scale":         5.0 ,
+        "object_scale":         7.0 ,
         "no_object_scale":      1.0,
         "coord_scale":          1.0,
         "class_scale":          1.0,
 
-        "saved_weights_name":   "full_yolo_kangaroo.h5",
+        "saved_weights_name":   "best_saved_weights_full_yolo.h5",
         "debug":                true
     },
 
     "valid": {
-        "valid_image_folder":   "",
-        "valid_annot_folder":   "",
+        "valid_image_folder":   "/home/ankit/Documents/Ankit-BackUp/Develop/LiverVision/Instrument Detection/dataset/valid_image_folder/",
+        "valid_annot_folder":   "/home/ankit/Documents/Ankit-BackUp/Develop/LiverVision/Instrument Detection/dataset/valid_annot_folder_new/",
 
         "valid_times":          1
     }

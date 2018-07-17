@@ -25,7 +25,7 @@ class BaseFeatureExtractor(object):
 
     # to be defined in each subclass
     def normalize(self, image):
-        raise NotImplementedError("error message")       
+        raise NotImplementedError("error message")
 
     def get_output_shape(self):
         return self.feature_extractor.get_output_shape_at(-1)[1:3]
@@ -163,7 +163,7 @@ class FullYoloFeature(BaseFeatureExtractor):
         x = BatchNormalization(name='norm_22')(x)
         x = LeakyReLU(alpha=0.1)(x)
 
-        self.feature_extractor = Model(input_image, x)  
+        self.feature_extractor = Model(input_image, x)
         self.feature_extractor.load_weights(FULL_YOLO_BACKEND_PATH)
 
     def normalize(self, image):
@@ -199,8 +199,8 @@ class TinyYoloFeature(BaseFeatureExtractor):
             x = BatchNormalization(name='norm_' + str(i+7))(x)
             x = LeakyReLU(alpha=0.1)(x)
 
-        self.feature_extractor = Model(input_image, x)  
-        self.feature_extractor.load_weights(TINY_YOLO_BACKEND_PATH)
+        self.feature_extractor = Model(input_image, x)
+        # self.feature_extractor.load_weights(TINY_YOLO_BACKEND_PATH)
 
     def normalize(self, image):
         return image / 255.
@@ -215,14 +215,14 @@ class MobileNetFeature(BaseFeatureExtractor):
 
         x = mobilenet(input_image)
 
-        self.feature_extractor = Model(input_image, x)  
+        self.feature_extractor = Model(input_image, x)
 
     def normalize(self, image):
         image = image / 255.
         image = image - 0.5
         image = image * 2.
 
-        return image		
+        return image
 
 class SqueezeNetFeature(BaseFeatureExtractor):
     """docstring for ClassName"""
@@ -270,7 +270,7 @@ class SqueezeNetFeature(BaseFeatureExtractor):
         x = fire_module(x, fire_id=8, squeeze=64, expand=256)
         x = fire_module(x, fire_id=9, squeeze=64, expand=256)
 
-        self.feature_extractor = Model(input_image, x)  
+        self.feature_extractor = Model(input_image, x)
         self.feature_extractor.load_weights(SQUEEZENET_BACKEND_PATH)
 
     def normalize(self, image):
@@ -281,7 +281,7 @@ class SqueezeNetFeature(BaseFeatureExtractor):
         image[..., 1] -= 116.779
         image[..., 2] -= 123.68
 
-        return image    
+        return image
 
 class Inception3Feature(BaseFeatureExtractor):
     """docstring for ClassName"""
@@ -293,7 +293,7 @@ class Inception3Feature(BaseFeatureExtractor):
 
         x = inception(input_image)
 
-        self.feature_extractor = Model(input_image, x)  
+        self.feature_extractor = Model(input_image, x)
 
     def normalize(self, image):
         image = image / 255.
@@ -318,7 +318,7 @@ class VGG16Feature(BaseFeatureExtractor):
         image[..., 1] -= 116.779
         image[..., 2] -= 123.68
 
-        return image 
+        return image
 
 class ResNet50Feature(BaseFeatureExtractor):
     """docstring for ClassName"""
@@ -337,4 +337,4 @@ class ResNet50Feature(BaseFeatureExtractor):
         image[..., 1] -= 116.779
         image[..., 2] -= 123.68
 
-        return image 
+        return image

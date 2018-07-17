@@ -13,6 +13,11 @@ from preprocessing import BatchGenerator
 from keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard
 from backend import TinyYoloFeature, FullYoloFeature, MobileNetFeature, SqueezeNetFeature, Inception3Feature, VGG16Feature, ResNet50Feature
 
+import tensorflow as tf
+from tensorflow.python.tools import freeze_graph
+from tensorflow.contrib.keras import backend as K
+
+
 class YOLO(object):
     def __init__(self, backend,
                        input_size, 
@@ -271,7 +276,7 @@ class YOLO(object):
         ############################################
 
         generator_config = {
-            'IMAGE_H'         : self.input_size, 
+            'IMAGE_H'         : self.input_size,
             'IMAGE_W'         : self.input_size,
             'GRID_H'          : self.grid_h,  
             'GRID_W'          : self.grid_w,
@@ -333,12 +338,19 @@ class YOLO(object):
                                  validation_steps = len(valid_generator) * valid_times,
                                  callbacks        = [early_stop, checkpoint, tensorboard], 
                                  workers          = 3,
-                                 max_queue_size   = 8)      
+                                 max_queue_size   = 8)
+
+        frozen_graph = self.freeze_session(K.get_session(),
+                                      output_names=[out.op.name for out in self.model.outputs])
+        tf.train.write_graph(frozen_graph, "some_directory", "my_model_text.pb", as_text=True)
+        tf.train.write_graph(K.get_session().graph_def, "some_directory", "my_model3.pb", as_text=True)
 
         ############################################
         # Compute mAP on the validation set
         ############################################
         average_precisions = self.evaluate(valid_generator)     
+
+
 
         # print evaluation
         for label, average_precision in average_precisions.items():
@@ -471,3 +483,32 @@ class YOLO(object):
         boxes  = decode_netout(netout, self.anchors, self.nb_class)
 
         return boxes
+
+    def freeze_session(session, keep_var_names=None, output_names=None, clear_devices=True):
+        """
+        Freezes the state of a session into a pruned computation graph.
+
+        Creates a new computation graph where variable nodes are replaced by
+        constants taking their current value in the session. The new graph will be
+        pruned so subgraphs that are not necessary to compute the requested
+        outputs are removed.
+        @param session The TensorFlow session to be frozen.
+        @param keep_var_names A list of variable names that should not be frozen,
+                              or None to freeze all the variables in the graph.
+        @param output_names Names of the relevant graph outputs.
+        @param clear_devices Remove the device directives from the graph for better portability.
+        @return The frozen graph definition.
+        """
+        from tensorflow.python.framework.graph_util import convert_variables_to_constants
+        graph = session.graph
+        with graph.as_default():
+            freeze_var_names = list(set(v.op.name for v in tf.global_variables()).difference(keep_var_names or []))
+            output_names = output_names or []
+            output_names += [v.op.name for v in tf.global_variables()]
+            input_graph_def = graph.as_graph_def()
+            if clear_devices:
+                for node in input_graph_def.node:
+                    node.device = ""
+            frozen_graph = convert_variables_to_constants(session, input_graph_def,
+                                                          output_names, freeze_var_names)
+            return frozen_graph
